@@ -17,7 +17,7 @@ function MyPromise(fn) {
         self.status = FULFILLED
         self.value = value
         self.onFulfilledCallbacks.forEach((callback) => callback(self.value))
-      })
+      }, 0)
     }
   }
 
@@ -27,7 +27,7 @@ function MyPromise(fn) {
         self.status = REJECTED
         self.error = error
         self.onRejectedCallbacks.forEach((callback) => callback(self.value))
-      })
+      }, 0)
     }
   }
   fn(resolve, rejected)
@@ -47,7 +47,7 @@ MyPromise.prototype.then = function(onFulfilled, onRejected) {
         } catch(e) {
           reject(e)
         }
-      });
+      }, 0);
     })
   }
   if (self.status === REJECTED) {
@@ -59,7 +59,7 @@ MyPromise.prototype.then = function(onFulfilled, onRejected) {
         } catch(e) {
           reject(e)
         }
-      });
+      }, 0);
     })
   }
   if (self.status === PENDING) {
