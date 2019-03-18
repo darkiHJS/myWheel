@@ -22,5 +22,4 @@ let f2 = new MyPromise((resolve, reject) => {
   }, 5000);
 })
 
-var a = MyPromise.resolve(123)
-a.then((v) => console.log(v))
+f2.then(v => console.log(v)).finally(() => {console.log('the end')})

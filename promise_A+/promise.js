@@ -89,6 +89,19 @@ MyPromise.prototype.catch = function(onRejected) {
   return this.then(null, onRejected)
 }
 
+MyPromise.prototype.finally = function(cb) {
+  return this.then(
+    value => {
+      cb()
+      return value
+    },
+    err => {
+      cd()
+      throw err 
+    }
+  )
+}
+
 function resolvePromise(bridgePromisem, x, resolve, reject) {
   if (x instanceof MyPromise) {
     if(x.status === PENDING) {
@@ -146,6 +159,16 @@ MyPromise.reject = function(error) {
   return new MyPromise((resolve, reject) => {
     reject(error)
   })
+}
+
+MyPromise.promisify = function(fn) {
+  return function(...args) {
+    return new MyPromise(function(resolve, reject) {
+      fn.apply(null, args.concat(function(err) { // 最后的函数编程callback了
+        err ? reject(err) : resolve(arguments[0])
+      }))
+    })
+  }
 }
 
 module.exports = MyPromise;
