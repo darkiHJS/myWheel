@@ -26,7 +26,7 @@ function MyPromise(fn) {
       setTimeout(() => {
         self.status = REJECTED
         self.error = error
-        self.onRejectedCallbacks.forEach((callback) => callback(self.value))
+        self.onRejectedCallbacks.forEach((callback) => callback(self.error))
       }, 0)
     }
   }

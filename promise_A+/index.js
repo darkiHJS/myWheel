@@ -10,9 +10,11 @@ let p = new MyPromise((resolve, reject) => {
 let f1 = function(data) {
   console.log(data)
   return new MyPromise((resolve, reject) => {
-    fs.readFile('./file/2.txt', 'utf-8', function(err, data)  {
-      err ? reject(err) : resolve(data)
-    })
+    setTimeout(() => {
+      fs.readFile('./file/2.txt', 'utf-8', function(err, data)  {
+        err ? reject(err) : resolve(data)
+      })
+    }, 5000);
   })
 }
 let f2 = function(data) {
@@ -27,4 +29,4 @@ let f3 = function(data) {
   console.log(data)
 }
 
-p.then(f1).then(f2).then(f3)
+p.then(f1).then(f2).then().then(f3)
