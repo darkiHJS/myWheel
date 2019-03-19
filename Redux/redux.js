@@ -41,19 +41,19 @@ function compose(...funcs) {
   return funcs.reduce((a,b) => (...args) => a(b(...args)))
 }
 
-function applyMiddleware(middleware) {
+function applyMiddleware(middlewares) {
   return function a1 (createStore) {
     return function a2 (reducer) {
       const store = createStore(reducer)
       let dispatch = store.dispatch
-
+      let chain = []
       const middlewareAPI = {
         getState: store.getState,
         dispatch: action => dispatch(action)
       }
 
-      let mid = middleware(middlewareAPI)
-      dispatch = mid(store.dispatch)
+      chain = middlewares.map(middleware => middleware(middlewareAPI))
+      dispatch = compose(...chain)(store.dispatch)
       
       return {
         ...store,
@@ -61,4 +61,30 @@ function applyMiddleware(middleware) {
       }
     }
   }
-} 
+}
+
+let loggerone = function({ dispatch, getState }) {
+  return function loggerOneOut(next) {
+      return function loggerOneIn(action) {
+          console.log("loggerone:", getState());
+          next(action)
+          console.log("loggerone:", getState())
+      }
+
+  }
+}
+let loggertwo = function({ dispatch, getState }) {
+  return function loggerTwoOut(next) {
+      return function loggerTwoIn(action) {
+          console.log("loggertwo:", getState());
+          next(action)
+          console.log("loggertwo:", getState())
+      }
+  }
+}
+
+function reducer(state, action) {}
+
+const store = createStore(reducer, applyMiddleware([loggertwo, loggerone]))
+
+console.log(store)
