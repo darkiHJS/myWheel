@@ -83,8 +83,8 @@ let loggertwo = function({ dispatch, getState }) {
   }
 }
 
-function reducer(state, action) {}
+  function reducer(state, action) {}
 
-const store = createStore(reducer, applyMiddleware([loggertwo, loggerone]))
+  const store = createStore(reducer, applyMiddleware([loggertwo, loggerone]))
 
-console.log(store)
+  console.log(store)

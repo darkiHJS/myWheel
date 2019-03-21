@@ -1,7 +1,8 @@
-const http      = require('http')
-const context   = require('./context')
-const request   = require('./request')
-const response  = require('./response')
+const EventEmitter  = require('events')
+const http          = require('http')
+const context       = require('./context')
+const request       = require('./request')
+const response      = require('./response')
 
 class Application {
   /**
@@ -60,7 +61,9 @@ class Application {
       let ctx = this.createContext(req, res)
       let respond = () => this.reponseBody(ctx)
       let fn = this.compose()
-      return fn(ctx).then(respond)
+      // 捕获中间件异常 进行error降级
+      let onerror = (err) => this.onerror(err, ctx)
+      return fn(ctx).then(respond).catch(onerror)
     }
   }
 
@@ -80,6 +83,23 @@ class Application {
     }else if (typeof content === 'object') {
       ctx.res.end(JSON.stringify(content))
     }
+  }
+
+  /**
+   * 错误处理
+   * @param {Object} err Error对象
+   * @param {Object} ctx ctx对象
+   */
+  onerror(err, ctx) {
+    if(err.code === 'ENOENT') {
+      // ENOENT 没有这样的文件或者目录
+      ctx.state = 404 
+    }else {
+      ctx.state = 500
+    }
+    let msg = err.message || 'Internal error'
+    ctx.res.end(msg)
+    this.emit('error', err)
   }
 }
 

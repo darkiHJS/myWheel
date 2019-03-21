@@ -5,17 +5,17 @@ const app = new Koa()
 
 app.use(async (ctx, next) => {
   console.log(1)
-  next()
+  await next()
   console.log(6)
 })
 app.use(async (ctx, next) => {
   console.log(2)
-  next()
+  await next()
   console.log(5)
 })
 app.use(async (ctx, next) => {
   console.log(3)
-  next()
+  await next()
   console.log(4)
 })
 
