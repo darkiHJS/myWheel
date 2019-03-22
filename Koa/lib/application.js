@@ -23,6 +23,7 @@ class Application {
   }
 
   use(middleware) {
+    if (typeof middleware !== 'function') throw new Error('middleware must be a function!')
     this.middlewares.push(middleware)
   }
   /**
