@@ -1,4 +1,3 @@
-const path = require('path')
+const http = require('http')
 
-var str = path.resolve('./','./index.js')
-console.log(str)
+console.log(http.METHODS)
