@@ -4,12 +4,20 @@ const app = new Koa()
 // app.context.XXXX 可以对ctx对象进行扩展 可以挂在一些常用放，egg就是这么干的
 
 app.use(async (ctx, next) => {
+  
+  await next()
+
+})
+
+app.use(async (ctx, next) => {
   console.log(1)
   await next()
   console.log(6)
+  ctx.body = "geww1!"
 })
 app.use(async (ctx, next) => {
   console.log(2)
+  throw new Error('我就是要报个错')
   await next()
   console.log(5)
 })

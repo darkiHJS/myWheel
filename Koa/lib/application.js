@@ -4,16 +4,36 @@ const context       = require('./context')
 const request       = require('./request')
 const response      = require('./response')
 
-class Application {
+class Application extends EventEmitter { // 继承EE来获得error事件的监听
   /**
    * 构造函数
    */
   constructor () {
+    super()
     this.middlewares = []
     this.context = context
     this.request = request
     this.response = response
   }
+
+  use(middleware) {
+    this.middlewares.push(middleware)
+  }
+  /**
+   * 获取 http所需的callback函数
+   * @return {Function} fn
+   */
+  callback() {
+    return (req, res) => {
+      let ctx = this.createContext(req, res)
+      let respond = () => this.reponseBody(ctx)
+      let fn = this.compose()
+      // 捕获中间件异常 进行error降级
+      let onerror = (err) => this.onerror(err, ctx)
+      return fn(ctx).then(respond).catch(onerror)
+    }
+  }
+
   /**
    * 开启 http server并传入回调方法
    */
@@ -22,8 +42,14 @@ class Application {
     server.listen(...args)
   }
 
-  use(middleware) {
-    this.middlewares.push(middleware)
+  createContext(req, res) {
+    // 原型继承，防止引用空间问题导致后加的属性也加到context等属性上
+    let ctx = Object.create(this.context)
+    ctx.request = Object.create(this.request)
+    ctx.response = Object.create(this.response)
+    ctx.req = ctx.request.req = req
+    ctx.res = ctx.response.res = res
+    return ctx
   }
   /**
    * 中间件的合并方法，将中间件合并成一个中间件
@@ -50,30 +76,6 @@ class Application {
 
       await next()
     }
-  }
-
-  /**
-   * 获取 http所需的callback函数
-   * @return {Function} fn
-   */
-  callback() {
-    return (req, res) => {
-      let ctx = this.createContext(req, res)
-      let respond = () => this.reponseBody(ctx)
-      let fn = this.compose()
-      // 捕获中间件异常 进行error降级
-      let onerror = (err) => this.onerror(err, ctx)
-      return fn(ctx).then(respond).catch(onerror)
-    }
-  }
-
-  createContext(req, res) {
-    let ctx = Object.create(this.context)
-    ctx.request = Object.create(this.request)
-    ctx.response = Object.create(this.response)
-    ctx.req = ctx.request.req = req
-    ctx.res = ctx.response.res = res
-    return ctx
   }
 
   reponseBody(ctx) {
